@@ -12,11 +12,13 @@ describe('Logger', function () {
   test('It logs to warn', () => {
     const spy = jest.spyOn(logger, 'warn');
     logger.warn(msg, params);
+    expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(msg, params);
   });
   test('It logs to debug', () => {
     const spy = jest.spyOn(logger, 'debug');
     logger.debug(msg, params);
+    expect(spy).toHaveBeenCalledTimes(1);
     expect(spy).toHaveBeenCalledWith(msg, params);
   });
   test('It logs to error', () => {
