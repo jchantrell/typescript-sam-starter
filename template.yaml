@@ -1,0 +1,76 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Stack description
+Parameters:
+  Param:
+    Type: String
+    Description: Description
+    Default: ''
+
+Globals:
+  Function:
+    Runtime: nodejs20.x
+    Timeout: 30
+    MemorySize: 128
+    Layers:
+      - !Ref DependencyLayer
+    Environment:
+      Variables:
+        PARAM: !Ref Param
+
+Resources:
+  # Functions
+  ExampleFunction:
+    Type: AWS::Serverless::Function
+    DependsOn:
+      - LambdaRole
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      FunctionName: !Sub '${AWS::StackName}-ExampleFunction'
+      Handler: dist/handlers/example.handler
+      Role: !Sub 'arn:aws:iam::${AWS::AccountId}:role/${AWS::StackName}-LambdaRole'
+      LoggingConfig:
+        LogFormat: JSON
+        ApplicationLogLevel: DEBUG
+
+  # Layers
+  DependencyLayer:
+    Type: AWS::Serverless::LayerVersion
+    Metadata:
+      BuildMethod: makefile
+    Properties:
+      Description: Runtime dependencies for Lambdas
+      ContentUri: ./
+      CompatibleRuntimes:
+        - nodejs20.x
+      RetentionPolicy: Retain
+
+  LambdaRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub '${AWS::StackName}-LambdaRole'
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      Path: /
+      Policies:
+        - PolicyName: !Sub '${AWS::StackName}-LambdaPolicy'
+          PolicyDocument:
+            Statement:
+              - Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                  - 'ec2:CreateNetworkInterface'
+                  - 'ec2:DescribeNetworkInterfaces'
+                  - 'ec2:DeleteNetworkInterface'
+                  - 'ec2:AssignPrivateIpAddresses'
+                  - 'ec2:UnassignPrivateIpAddresses'
+                Effect: Allow
+                Resource: '*'

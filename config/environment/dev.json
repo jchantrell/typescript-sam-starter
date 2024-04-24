@@ -1,0 +1,14 @@
+[
+  {
+    "key": "StackName",
+    "value": "example-stack"
+  },
+  {
+    "key": "S3Bucket",
+    "value": "some-bucket"
+  },
+  {
+    "key": "S3Prefix",
+    "value": "build"
+  }
+]
